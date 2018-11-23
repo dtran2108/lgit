@@ -351,9 +351,8 @@ def lgit_log():
 
 # ==MAIN========================================================================
 
-def main():
-    args = sys.argv
 
+def handle_inner_dir(args):
     # in case lgit.py is called from inner dir
     call = args[0]
     curpath = os.getcwd() + '/'
@@ -362,10 +361,18 @@ def main():
     if ch != '':
         # changes the current directory to the dir which has .lgit dir
         os.chdir(ch)
+
+def get_curpath():
     mainpath = os.getcwd() + '/'
     # save the current dir if necessary
     curpath = ''.join(curpath.split(mainpath))
+    return curpath
 
+
+def main():
+    args = sys.argv
+    handle_inner_dir(args)
+    curpath = get_curpath()
     # get options
     command = args[1]
     if command == 'init':
