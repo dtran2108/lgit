@@ -26,6 +26,8 @@ lgit log:             shows the commit history
 '''
 
 
+# ==INIT========================================================================
+
 def lgit_init():
     lst = ['commits', 'objects', 'snapshots']
     if not os.path.exists('.lgit'):
@@ -43,6 +45,8 @@ def lgit_init():
     else:
         print('Git repository already initialized.')
 
+
+# ==ADD=========================================================================
 
 def get_hash(filename):
     # get content and sha1 value of file
@@ -123,6 +127,8 @@ def lgit_add(filenames):
         os.close(fd)
 
 
+# ==REMOVE======================================================================
+
 # remove index content of the file
 def rm_index(filename):
     file = open('.lgit/index', 'r')
@@ -162,6 +168,8 @@ def lgit_rm(filenames):
             print('fatal: pathspec \'%s\' did not match any files' % filename)
 
 
+# ==COMMIT======================================================================
+
 def lgit_commit(message):
 
     # get timestamp
@@ -197,6 +205,8 @@ def lgit_commit(message):
         os.lseek(fd, len(line)-137, 1)
     os.close(fd)
 
+
+# ==STATUS======================================================================
 
 def lgit_status():
     print_status()
@@ -277,6 +287,8 @@ def print_not_staged_for_commit(files):
     print('\n\t modified: %s\n' % '\n\t modified: '.join(files))
 
 
+# ==LS_FILES====================================================================
+
 def lgit_lsFile(curpath):
     f = open('.lgit/index', 'r')
     content = f.read()
@@ -296,11 +308,15 @@ def lgit_lsFile(curpath):
             print(temp[-1])
 
 
+# ==CONFIG======================================================================
+
 def lgit_configAuthor(author):
     f = open('.lgit/config', 'w')
     f.write(author + '\n')
     f.close()
 
+
+# ==LOG=========================================================================
 
 def lgit_log():
     months = {'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
@@ -332,6 +348,8 @@ def lgit_log():
         print('\t' + lines[3] + '\n')
         f.close()
 
+
+# ==MAIN========================================================================
 
 def main():
     args = sys.argv
