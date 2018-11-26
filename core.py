@@ -40,64 +40,8 @@ def lgit_init():
         os.close(fd)
         fd = os.open('.lgit/index', os.O_CREAT)
         os.close(fd)
-
-        # bonus
-        os.mkdir('.lgit/refs')
-        os.mkdir('.lgit/refs/heads')
-        fd = os.open('.lgit/refs/HEAD', os.O_CREAT)
-        os.close(fd)
-        # end bonus
-
     else:
         print('Git repository already initialized.')
-
-
-def lgit_checkout(branch_name):
-    branch_list = os.listdir('.lgit/refs/heads')
-    if branch_list:
-        if branch_name in branch_list:
-            head_file = os.open('.lgit/refs/HEAD', os.O_RDWR)
-            content = os.read(head_file, os.stat(head_file).st_size).decode()
-            if branch_name == content.strip('\n').split('/')[-1]:
-                print('Already on \'%s\'' % branch_name)
-                if branch_name == 'master':
-                    print('Your branch is up-to-date with \'origin/master\'')
-            else:
-                os.write(head_file, bytes('ref: refs/heads/%s' %
-                                          branch_name, 'utf-8'))
-                os.close(head_file)
-                print('Switched to branch \'%s\'' % branch_name)
-                if branch_name == 'master':
-                    print('Your branch is based on \'origin/master\'')
-        else:
-            exit('error: pathspec \'%s\' did not match'
-                 'any file(s) known to git.' % branch_name)
-    else:
-        exit('fatal: You are on a branch yet to be born')
-
-
-def lgit_branch(args):
-    if len(args) == 3:
-        branch_name = args[-1]
-        if os.path.exists('.lgit/refs/heads/' + branch_name):
-            print('fatal: A branch named \'%s\' already exists.' % branch_name)
-            exit()
-        snapshots = os.listdir('.lgit/snapshots')
-        fd = os.open('.lgit/refs/heads/%s' %
-                     branch_name, os.O_CREAT | os.O_WRONLY)
-        if snapshots:
-            os.write(fd, max(snapshots).encode())
-        os.close(fd)
-    elif len(args) < 3:
-        head_file = open('.lgit/refs/HEAD', 'r')
-        head_content = head_file.read()
-        head_file.close()
-        heads_files = os.listdir('.lgit/refs/heads')
-        for file in heads_files:
-            if file == head_content.strip('\n').split('/')[-1]:
-                print('* ' + file)
-            else:
-                print('  ' + file)
 
 
 def get_hash(filename):
@@ -252,23 +196,6 @@ def lgit_commit(message):
         os.write(fd, hash.encode())
         os.lseek(fd, len(line)-137, 1)
     os.close(fd)
-
-    # bonus
-    f = os.open('.lgit/refs/HEAD', os.O_RDWR)
-    content = os.read(f, os.stat('.lgit/refs/HEAD').st_size).decode()
-    if content == '':
-        fd = os.open('.lgit/refs/heads/master', os.O_CREAT | os.O_WRONLY)
-        os.write(fd, ms_timestamp.encode())
-        os.close(fd)
-
-        os.write(f, 'ref: refs/heads/master'.encode())
-        os.close(f)
-    else:
-        curbranch = content.strip('\n').split('/')[-1]
-        fd = os.open('.lgit/refs/heads/%s' % curbranch, os.O_WRONLY)
-        os.write(fd, ms_timestamp.encode())
-        os.close(fd)
-    # end bonus
 
 
 def lgit_status():
@@ -453,22 +380,17 @@ def main():
                 print('Please enter a commit message with -m')
                 exit()
             else:
-                # others = args[2:]
-                # others.remove('-m')
-                lgit_commit(args[-1])
+                message = args[-1]
+                lgit_commit(message)
         elif command == 'status':
             lgit_status()
         elif command == 'ls-files':
             lgit_lsFile(curpath)
         elif command == 'config':
-            lgit_configAuthor(args[-1])
+            author = args[-1]
+            lgit_configAuthor(author)
         elif command == 'log':
             lgit_log()
-        elif command == 'branch':
-            lgit_branch(args)
-        elif command == 'checkout':
-            if len(args) > 2:
-                lgit_checkout(args[-1])
 
 
 if __name__ == '__main__':
